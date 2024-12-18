@@ -1,0 +1,5 @@
+# FOLDERS
+vendor/
+
+# FILES
+.env
