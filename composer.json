@@ -1,5 +1,5 @@
 {
-    "name": "kevin/backend-",
+    "name": "kevin/backend",
     "version": "0.0.1",
     "autoload": {
         "psr-4": {

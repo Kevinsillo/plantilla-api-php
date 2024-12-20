@@ -5,12 +5,12 @@ DEPLOYMENT_FILES = src vendor script index.php
 DEPLOYMENT_USER = $(shell whoami)
 
 ifeq ($(shell command -v composer 2> /dev/null),)
-    ifeq ($(wildcard composer.phar),)
-        call :get_composer
-    endif
-    COMPOSER := php composer.phar
+	ifeq ($(wildcard composer.phar),)
+		call :get_composer
+	endif
+	COMPOSER := php composer.phar
 else
-    COMPOSER := composer
+	COMPOSER := composer
 endif
 
 dev:
@@ -19,27 +19,30 @@ dev:
 install:
 	$(COMPOSER) install --ignore-platform-reqs
 
+install_prod:
+	$(COMPOSER) install --no-dev --optimize-autoloader
+
 update:
 	$(COMPOSER) update
 
-push: check
-	$(COMPOSER) install --no-dev --optimize-autoloader
+push: env_example check install_prod
 	rsync -zrPLp --chmod=ug=rwX,o=rX --delete $(DEPLOYMENT_FILES) $(DEPLOYMENT_USER)@$(DEPLOYMENT_IP):$(DEPLOYMENT_PATH)
 	$(COMPOSER) install --ignore-platform-reqs
 
-push_test: check
-	$(COMPOSER) install --no-dev --optimize-autoloader
+push_test: env_example check install_prod
 	rsync -zrPLp --chmod=ug=rwX,o=rX --delete $(DEPLOYMENT_FILES) $(DEPLOYMENT_USER)@$(DEPLOYMENT_IP):$(DEPLOYMENT_TEST)
 	$(COMPOSER) install --ignore-platform-reqs
 
-push_migrations: check
-	$(COMPOSER) install --no-dev --optimize-autoloader
+push_migrations: env_example check install_prod
 	rsync -zrPLp --chmod=ug=rwX,o=rX --delete $(DEPLOYMENT_FILES) migrations migrations.php $(DEPLOYMENT_USER)@$(DEPLOYMENT_IP):$(DEPLOYMENT_PATH)
 	$(COMPOSER) install --ignore-platform-reqs
 
 get_composer:
 	php -r "copy('https://getcomposer.org/download/latest-stable/composer.phar', 'composer.phar');"
 	$(COMPOSER) install --ignore-platform-reqs
+
+env_example:
+	@cp .env .env.example && sed -i 's/=.*/=/g' .env.example
 
 check:
 	@echo "$(YELLOW)Checking PHP syntax errors...$(RESET)"
