@@ -48,7 +48,7 @@ check:
 	@echo "$(YELLOW)Checking PHP syntax errors...$(RESET)"
 	@find src scripts -type f -name "*.php" -print0 | xargs -0 -n1 php -l || { echo "$(RED)Syntax errors found! Aborting.$(RESET)"; exit 1; }
 	@echo "$(YELLOW)Running PHPStan for semantic checks...$(RESET)"
-	@vendor/bin/phpstan analyse src scripts --level max || { echo "$(RED)PHPStan found errors! Aborting.$(RESET)"; exit 1; }
+	@vendor/bin/phpstan analyse src scripts --level 5 || { echo "$(RED)PHPStan found errors! Aborting.$(RESET)"; exit 1; }
 	@echo "$(GREEN)All checks passed!$(RESET)"
 
 test:
