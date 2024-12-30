@@ -8,16 +8,28 @@ use PDO;
 use Exception;
 use PDOException;
 
-class GestorSQLite
+class SQLiteManager
 {
     private string $sqlite_path;
+    public PDO $connection;
 
+    /**
+     * SQLiteManager constructor
+     * @return void 
+     * @throws PDOException 
+     */
     public function __construct()
     {
         $this->sqlite_path = "sqlite:" . ROOT_DIR . "/database/" . $_ENV['DATABASE_NAME'];
-        return $this->init();
+        $this->connection = $this->getConnection();
     }
-    public function init()
+
+    /**
+     * Get connection to SQLite database
+     * @return PDO 
+     * @throws PDOException 
+     */
+    public function getConnection(): PDO
     {
         try {
             $options = [
@@ -29,7 +41,7 @@ class GestorSQLite
             ];
             return new PDO($this->sqlite_path, null, null, $options);
         } catch (Exception $e) {
-            throw new PDOException("Falló la conexión: " . $e->getMessage(), (int)$e->getCode());
+            throw new PDOException("Connection with SQLite database failed: " . $e->getMessage());
         }
     }
 }

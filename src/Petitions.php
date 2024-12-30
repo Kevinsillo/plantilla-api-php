@@ -3,50 +3,50 @@
 declare(strict_types=1);
 
 /**
- * Obtiene el método HTTP de la petición
+ * Get the HTTP method of the request
  * @return string 
  * @throws Exception 
  */
-function obtenerMetodoHTTP(): string
+function getHttpMethod(): string
 {
-    $metodo = $_SERVER['REQUEST_METHOD'] ?? '';
+    $method = $_SERVER['REQUEST_METHOD'] ?? '';
     $permited_methods = ['POST', 'GET', 'DELETE'];
 
-    if (in_array($metodo, $permited_methods)) {
-        return strtolower($metodo);
+    if (in_array($method, $permited_methods)) {
+        return strtolower($method);
     }
 
-    throw new Exception('Método HTTP no disponible: ' . $metodo);
+    throw new Exception('HTTP method not available: ' . $method);
 }
 
 /**
- * Obtiene el método de la petición WebSocket
+ * Get the WebSocket method of the request
  * @return string 
  */
-function obtenerMetodoWebSocket(): string
+function getWebSocketMethod(): string
 {
     $request_body = json_decode(file_get_contents('php://input'), true) ?? [];
     return $request_body['method'] ?? '';
 }
 
 /**
- * Obtiene el servicio de la petición
+ * Get the service of the request
  * @return string 
  */
-function obtenerServicio(): string
+function getService(): string
 {
     $request_body = json_decode(file_get_contents('php://input'), true) ?? [];
     return $_REQUEST['service'] ?? $request_body['service'] ?? '';
 }
 
 /**
- * Obtiene los parámetros de la petición
+ * Get the parameters of the request
  * @return array 
  */
-function obtenerParametros(): array
+function getParameters(): array
 {
     $request_body = json_decode(file_get_contents('php://input'), true) ?? [];
-    $parametros = array_merge($request_body, $_REQUEST);
-    unset($parametros['service']);
-    return $parametros;
+    $parameters = array_merge($request_body, $_REQUEST);
+    unset($parameters['service']);
+    return $parameters;
 }

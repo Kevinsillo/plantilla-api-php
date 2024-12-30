@@ -6,17 +6,21 @@ namespace Backend\Infrastructure;
 
 use Exception;
 
-class GestorHttp
+class HttpManager
 {
     /**
-     * @return string
+     * Get method for HTTP requests
+     * @param string $url 
+     * @param array $parameters 
+     * @return string 
+     * @throws Exception 
      */
-    public function get(string $url, array $parametros): string
+    public function get(string $url, array $parameters): string
     {
-        $queryString = http_build_query($parametros);
+        $query_string = http_build_query($parameters);
 
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url . '?' . $queryString);
+        curl_setopt($ch, CURLOPT_URL, $url . '?' . $query_string);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HEADER, 0);
         $data = curl_exec($ch);
@@ -28,14 +32,21 @@ class GestorHttp
         return $data;
     }
 
-    public function post(string $url, array $parametros): string
+    /**
+     * Post method for HTTP requests
+     * @param string $url 
+     * @param array $parameters 
+     * @return string 
+     * @throws Exception 
+     */
+    public function post(string $url, array $parameters): string
     {
-        $queryString = http_build_query($parametros);
+        $query_string = http_build_query($parameters);
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $queryString);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $query_string);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $data = curl_exec($ch);
         if (curl_errno($ch)) {

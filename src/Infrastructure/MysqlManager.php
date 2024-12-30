@@ -7,15 +7,25 @@ namespace Backend\Infrastructure;
 use PDO;
 use PDOException;
 
-class GestorMysql
+class MysqlManager
 {
     private string $db_host;
     private string $db_name;
     private string $db_user;
     private string $db_pass;
     private string $db_port;
-    public $connection;
+    public PDO $connection;
 
+    /**
+     * MysqlManager constructor
+     * @param string $db_host 
+     * @param string $db_name 
+     * @param string $db_user 
+     * @param string $db_pass 
+     * @param string $db_port 
+     * @return void 
+     * @throws PDOException 
+     */
     public function __construct(string $db_host, string $db_name, string $db_user, string $db_pass, string $db_port)
     {
         $this->db_host = $db_host;
@@ -27,7 +37,7 @@ class GestorMysql
     }
 
     /**
-     * Devuelve la conexión a la base de datos
+     * Get connection to database
      * @return PDO 
      * @throws PDOException 
      */
@@ -42,7 +52,7 @@ class GestorMysql
             ];
             return new PDO("mysql:host={$this->db_host}; port={$this->db_port};dbname={$this->db_name}", $this->db_user, $this->db_pass, $options);
         } catch (PDOException $e) {
-            throw new PDOException("Error en la conexión con la base de datos: {$e->getMessage()}");
+            throw new PDOException("Connection with database failed: " . $e->getMessage());
         }
     }
 }

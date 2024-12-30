@@ -1,9 +1,13 @@
 <?php
 
-// Mostrar errores
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+declare(strict_types=1);
+
+use Backend\Domain\Response;
+
+// Show errors
+// ini_set('display_errors', 1);
+// ini_set('display_startup_errors', 1);
+// error_reporting(E_ALL);
 
 const ROOT_DIR = __DIR__;
 
@@ -11,49 +15,44 @@ require(ROOT_DIR . '/vendor/autoload.php');
 require(ROOT_DIR . '/src/Router.php');
 require(ROOT_DIR . '/src/Petitions.php');
 
-// Cargar el fichero de variables de entorno
+// Load environment variables
 $dotenv = Dotenv\Dotenv::createImmutable(ROOT_DIR);
 $dotenv->load();
 
-// Reglas del CORS
+// Headers for CORS
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Headers: X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Request-Method");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
 header("Allow: GET, POST, OPTIONS, PUT, DELETE");
 header('Content-Type: application/json');
 
-// Controla que la petición sea HTTP (evita problemas de CORS)
+// Control that the request is HTTP (avoids CORS problems)
 if (!isset($_REQUEST) or !isset($_SERVER['REQUEST_METHOD'])) {
-    http_response_code(400);
-    die(json_encode([
-        'error' => "Petición HTTP invalida",
-    ]));
+    $response = new Response();
+    $response->setError("Invalid HTTP request", 400);
+    die(json_encode($response->getResponse()));
 }
 
-// Sistema de enrutamiento
-$metodo = obtenerMetodoHTTP();
-$servicio = obtenerServicio();
-$parametros = obtenerParametros();
+// Router system to manage the requests
+$method = getHttpMethod();
+$service = getService();
+$parameters = getParameters();
 
-// Comprueba si el servicio solicitado existe
-if (!isset($router[$metodo][$servicio])) {
-    http_response_code(404);
-    die(json_encode([
-        'error' => "Servicio no disponible: [$metodo][$servicio]",
-        'metodo' => $metodo,
-        'servicio' => $servicio,
-        'parametros' => $parametros
-    ]));
+// Check if the service is available
+if (!isset($router[$metodo][$service])) {
+    $response = new Response();
+    $response->setError("Service not available: [$metodo][$service]", 404);
+    die(json_encode($response->getResponse(), JSON_PRETTY_PRINT));
 }
 
-// Montar el controlador
-$gestorEnpoint = $router[$metodo][$servicio];
-$controlador = $gestorEnpoint['controlador'];
-$funcion = $gestorEnpoint['funcion'];
+// Mount the controller and function
+$endpoint_manager = $router[$metodo][$service];
+$controller = $endpoint_manager['controller'];
+$function = $endpoint_manager['function'];
 
-// Llamada a la función del controlador
-$gestorControlador = new $controlador($parametros);
-$datos = $gestorControlador->$funcion();
+// Execute a controller function
+$controller_manager = new $controller($parameters);
+$result = $controller_manager->$function();
 
-// Devuelve los datos y corta la ejecución
-die(json_encode($datos, true));
+// Return the response
+die(json_encode($result, JSON_PRETTY_PRINT));

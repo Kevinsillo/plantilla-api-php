@@ -6,7 +6,7 @@ namespace Backend\Infrastructure;
 
 use Backend\Domain\Response;
 
-class Controlador
+class Controller
 {
     private array $parametros;
     private Response $response;
