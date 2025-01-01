@@ -13,9 +13,6 @@ else
 	COMPOSER := composer
 endif
 
-dev:
-	php -S localhost:8000
-
 install:
 	$(COMPOSER) install --ignore-platform-reqs
 
@@ -36,6 +33,9 @@ push_test: env_example check install_prod
 push_migrations: env_example check install_prod
 	rsync -zrPLp --chmod=ug=rwX,o=rX --delete $(DEPLOYMENT_FILES) migrations migrations.php $(DEPLOYMENT_USER)@$(DEPLOYMENT_IP):$(DEPLOYMENT_PATH)
 	$(COMPOSER) install --ignore-platform-reqs
+
+dev:
+	php -S localhost:8000
 
 get_composer:
 	php -r "copy('https://getcomposer.org/download/latest-stable/composer.phar', 'composer.phar');"

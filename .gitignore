@@ -4,3 +4,5 @@ vendor/
 
 # FILES
 .env
+composer.phar
+composer.lock

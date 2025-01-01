@@ -13,7 +13,7 @@ function getHttpMethod(): string
     $permited_methods = ['POST', 'GET', 'DELETE'];
 
     if (in_array($method, $permited_methods)) {
-        return strtolower($method);
+        return $method;
     }
 
     throw new Exception('HTTP method not available: ' . $method);

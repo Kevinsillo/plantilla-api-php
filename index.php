@@ -39,14 +39,14 @@ $service = getService();
 $parameters = getParameters();
 
 // Check if the service is available
-if (!isset($router[$metodo][$service])) {
+if (!isset($router[$method][$service])) {
     $response = new Response();
-    $response->setError("Service not available: [$metodo][$service]", 404);
+    $response->setError("Service not available: [$method][$service]", 404);
     die(json_encode($response->getResponse(), JSON_PRETTY_PRINT));
 }
 
 // Mount the controller and function
-$endpoint_manager = $router[$metodo][$service];
+$endpoint_manager = $router[$method][$service];
 $controller = $endpoint_manager['controller'];
 $function = $endpoint_manager['function'];
 
