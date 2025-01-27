@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Backend\Infrastructure;
 
-class EventSourceManager
+class GestorEventSource
 {
     private array $events = [];
 

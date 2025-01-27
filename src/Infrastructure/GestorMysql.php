@@ -7,7 +7,7 @@ namespace Backend\Infrastructure;
 use PDO;
 use PDOException;
 
-class MysqlManager
+class GestorMysql
 {
     private string $db_host;
     private string $db_name;

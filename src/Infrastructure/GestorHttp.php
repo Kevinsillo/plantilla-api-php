@@ -6,7 +6,7 @@ namespace Backend\Infrastructure;
 
 use Exception;
 
-class HttpManager
+class GestorHttp
 {
     /**
      * Get method for HTTP requests

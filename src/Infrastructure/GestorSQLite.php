@@ -8,7 +8,7 @@ use PDO;
 use Exception;
 use PDOException;
 
-class SQLiteManager
+class GestorSQLite
 {
     private string $sqlite_path;
     public PDO $connection;
