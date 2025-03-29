@@ -15,6 +15,7 @@ Start building your APIs in PHP effortlessly with this robust and feature-rich t
 This template leverages:
 - [phpstan/phpstan](https://phpstan.org/) – A powerful static code analyzer for PHP.
 - [vlucas/phpdotenv](https://github.com/vlucas/phpdotenv) – Easily manage environment variables in PHP.
+- [firebase/php-jwt](https://github.com/firebase/php-jwt) – A simple library to encode and decode JSON Web Tokens (JWT).
 
 ## ⚙️ Requirements
 

@@ -8,19 +8,18 @@ use PDO;
 use Exception;
 use PDOException;
 
-class GestorSQLite
+class ManagerSQLite
 {
-    private string $sqlite_path;
+    private string $database_path;
     public PDO $connection;
 
     /**
      * SQLiteManager constructor
-     * @return void 
-     * @throws PDOException 
+     * @param string $database_path Path to SQLite database
      */
-    public function __construct()
+    public function __construct(string $database_path)
     {
-        $this->sqlite_path = "sqlite:" . ROOT_DIR . "/database/" . $_ENV['DATABASE_NAME'];
+        $this->database_path = $database_path;
         $this->connection = $this->getConnection();
     }
 
@@ -39,9 +38,9 @@ class GestorSQLite
                 PDO::ATTR_EMULATE_PREPARES => false,
                 PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"
             ];
-            return new PDO($this->sqlite_path, null, null, $options);
+            return new PDO($this->database_path, null, null, $options);
         } catch (Exception $e) {
-            throw new PDOException("Connection with SQLite database failed: " . $e->getMessage());
+            throw new PDOException("Connection with SQLite database failed: " . $e->getMessage(), 500);
         }
     }
 }

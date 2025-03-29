@@ -7,7 +7,7 @@ namespace Backend\Infrastructure;
 use PDO;
 use PDOException;
 
-class GestorMysql
+class ManagerMysql
 {
     private string $db_host;
     private string $db_name;
@@ -52,7 +52,7 @@ class GestorMysql
             ];
             return new PDO("mysql:host={$this->db_host}; port={$this->db_port};dbname={$this->db_name}", $this->db_user, $this->db_pass, $options);
         } catch (PDOException $e) {
-            throw new PDOException("Connection with database failed: " . $e->getMessage());
+            throw new PDOException("Connection with database failed: " . $e->getMessage(), 500);
         }
     }
 }

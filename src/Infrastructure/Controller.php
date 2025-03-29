@@ -4,22 +4,35 @@ declare(strict_types=1);
 
 namespace Backend\Infrastructure;
 
-use Backend\Domain\Response;
+use DateTime;
 
-class Controller
+class Controller extends ControllerBase
 {
-    private array $parametros;
-    private Response $response;
-
+    /**
+     * Controller constructor
+     * @param array $parametros
+     */
     public function __construct(array $parametros)
     {
-        $this->parametros = $parametros;
-        $this->response = new Response();
+        parent::__construct($parametros);
     }
 
+    /**
+     * Hello World
+     * @return array
+     */
     public function helloWorld(): array
     {
+        if (!isset($this->parameters['ping'])) {
+            $this->response->setError('Ping not provided', 400);
+            return $this->response->getResponse();
+        }
+
+        $datetime = new DateTime();
         $this->response->setSuccess('Hello World');
+        $this->response->setData([
+            'pong' => $datetime->format('c'),
+        ]);
         return $this->response->getResponse();
     }
 }

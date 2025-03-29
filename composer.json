@@ -16,7 +16,8 @@
         }
     ],
     "require": {
-        "vlucas/phpdotenv": "^5.5"
+        "vlucas/phpdotenv": "^5.5",
+        "firebase/php-jwt": "^6.11"
     },
     "require-dev": {
         "phpstan/phpstan": "^2.0.4"

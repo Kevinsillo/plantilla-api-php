@@ -6,7 +6,7 @@ namespace Backend\Infrastructure;
 
 use Exception;
 
-class GestorHttp
+class ManagerHttp
 {
     /**
      * Get method for HTTP requests
@@ -22,7 +22,7 @@ class GestorHttp
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url . '?' . $query_string);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HEADER, 0);
+        curl_setopt($ch, CURLOPT_HEADER, false);
         $data = curl_exec($ch);
         if (curl_errno($ch)) {
             throw new Exception(curl_error($ch));
@@ -45,7 +45,7 @@ class GestorHttp
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $query_string);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $data = curl_exec($ch);

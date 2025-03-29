@@ -1,6 +1,8 @@
 # FOLDERS
 vendor/
 .vscode/
+files/*
+scripts/*
 
 # FILES
 .env
