@@ -25,7 +25,7 @@ class Logger
     {
         # Validate options
         if (empty($options["folder_path"])) {
-            throw new Exception("The Logger path is not defined. Provide the 'path' parameter or define the 'LOGGER_PATH' environment variable.");
+            throw new Exception("The Logger path is not defined. Provide the 'path' parameter or define the 'LOGGER_FOLDER' environment variable.");
         }
 
         # Set default values
@@ -61,7 +61,7 @@ class Logger
     {
         $is_detail = self::getOption($options, "is_detail", false);
         $name_log = self::getOption($options, "name_log", basename($_SERVER['SCRIPT_FILENAME'], '.php'));
-        $folder_path = self::getOption($options, "folder_path", $_ENV['LOGGER_PATH']);
+        $folder_path = self::getOption($options, "folder_path", $_ENV['LOGGER_FOLDER']);
         $subfolder_name = self::getOption($options, "subfolder", 'LARGO');
         $use_timestamp = self::getOption($options, "use_timestamp", true);
 

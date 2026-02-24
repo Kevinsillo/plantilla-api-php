@@ -70,7 +70,7 @@ class Router
             try {
                 AuthMiddleware::isAuthorized();
             } catch (Exception $e) {
-                throw new Exception($e->getMessage(), 401);
+                throw new Exception($e->getMessage(), $e->getCode());
             }
         }
     }

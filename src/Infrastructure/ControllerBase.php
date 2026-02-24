@@ -78,7 +78,7 @@ class ControllerBase
 
         $payload = [
             'user' => [
-                'user' => $this->parameters['user'],
+                'name' => $this->parameters['name'],
                 'role' => $store_user['role'],
             ]
         ];

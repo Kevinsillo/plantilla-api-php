@@ -7,8 +7,9 @@ namespace Backend\Infrastructure;
 use PDO;
 use Exception;
 use PDOException;
+use Backend\Domain\ManagerDatabase;
 
-class ManagerSQLite
+class ManagerSQLite implements ManagerDatabase
 {
     private string $database_path;
     public PDO $connection;
@@ -25,8 +26,8 @@ class ManagerSQLite
 
     /**
      * Get connection to SQLite database
-     * @return PDO 
-     * @throws PDOException 
+     * @return PDO
+     * @throws PDOException
      */
     public function getConnection(): PDO
     {
@@ -36,11 +37,70 @@ class ManagerSQLite
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
                 PDO::ATTR_STRINGIFY_FETCHES => false,
                 PDO::ATTR_EMULATE_PREPARES => false,
-                PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"
             ];
-            return new PDO($this->database_path, null, null, $options);
+            return new PDO('sqlite:' . $this->database_path, null, null, $options);
         } catch (Exception $e) {
             throw new PDOException("Connection with SQLite database failed: " . $e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Creates the `migrations` tracking table if it doesn't exist.
+     * @return void
+     */
+    public function setup(): void
+    {
+        $this->connection->exec("CREATE TABLE IF NOT EXISTS migrations (name TEXT UNIQUE)");
+    }
+
+    /**
+     * Fetches the list of executed migrations.
+     * @return array List of migration names.
+     */
+    public function getExecutedMigrations(): array
+    {
+        return $this->connection
+            ->query("SELECT name FROM migrations")
+            ->fetchAll(PDO::FETCH_COLUMN);
+    }
+
+    /**
+     * Logs a migration as executed in the database.
+     * @param string $name Name of the migration file.
+     * @return void
+     */
+    public function logMigration(string $name): void
+    {
+        $stmt = $this->connection->prepare("INSERT INTO migrations (name) VALUES (:name)");
+        $stmt->execute(['name' => $name]);
+    }
+
+    /**
+     * Executes a migration SQL file.
+     * @param string $filePath Path to the migration file.
+     * @return void
+     * @throws PDOException
+     */
+    public function runMigration(string $filePath): void
+    {
+        $query = file_get_contents($filePath);
+        $this->connection->exec($query);
+    }
+
+    /**
+     * Drops all tables in the SQLite database.
+     * @return void
+     */
+    public function resetDatabase(): void
+    {
+        $tables = $this->connection
+            ->query("SELECT name FROM sqlite_master WHERE type='table'")
+            ->fetchAll(PDO::FETCH_COLUMN);
+
+        foreach ($tables as $table) {
+            if ($table !== 'sqlite_sequence') {
+                $this->connection->exec("DROP TABLE IF EXISTS " . $table);
+            }
         }
     }
 }

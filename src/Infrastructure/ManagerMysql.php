@@ -6,8 +6,9 @@ namespace Backend\Infrastructure;
 
 use PDO;
 use PDOException;
+use Backend\Domain\ManagerDatabase;
 
-class ManagerMysql
+class ManagerMysql implements ManagerDatabase
 {
     private string $db_host;
     private string $db_name;
@@ -38,8 +39,8 @@ class ManagerMysql
 
     /**
      * Get connection to database
-     * @return PDO 
-     * @throws PDOException 
+     * @return PDO
+     * @throws PDOException
      */
     private function getConnection(): PDO
     {
@@ -54,5 +55,59 @@ class ManagerMysql
         } catch (PDOException $e) {
             throw new PDOException("Connection with database failed: " . $e->getMessage(), 500);
         }
+    }
+
+    /**
+     * Creates the `migrations` tracking table if it doesn't exist.
+     * @return void
+     */
+    public function setup(): void
+    {
+        $this->connection->exec("CREATE TABLE IF NOT EXISTS migrations (name VARCHAR(255) UNIQUE)");
+    }
+
+    /**
+     * Fetches the list of executed migrations.
+     * @return array List of migration names.
+     */
+    public function getExecutedMigrations(): array
+    {
+        return $this->connection
+            ->query("SELECT name FROM migrations")
+            ->fetchAll(PDO::FETCH_COLUMN);
+    }
+
+    /**
+     * Logs a migration as executed in the database.
+     * @param string $name Name of the migration file.
+     * @return void
+     */
+    public function logMigration(string $name): void
+    {
+        $stmt = $this->connection->prepare("INSERT INTO migrations (name) VALUES (:name)");
+        $stmt->execute(['name' => $name]);
+    }
+
+    /**
+     * Executes a migration SQL file.
+     * @param string $filePath Path to the migration file.
+     * @return void
+     * @throws PDOException
+     */
+    public function runMigration(string $filePath): void
+    {
+        $query = file_get_contents($filePath);
+        $this->connection->exec($query);
+    }
+
+    /**
+     * Drops and recreates the database.
+     * @return void
+     */
+    public function resetDatabase(): void
+    {
+        $this->connection->exec("DROP DATABASE IF EXISTS " . $this->db_name);
+        $this->connection->exec("CREATE DATABASE " . $this->db_name);
+        $this->connection->exec("USE " . $this->db_name);
     }
 }

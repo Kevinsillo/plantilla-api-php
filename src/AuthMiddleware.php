@@ -9,8 +9,6 @@ use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use Firebase\JWT\ExpiredException;
 use Firebase\JWT\SignatureInvalidException;
-use Backend\Domain\Response;
-
 class AuthMiddleware
 {
     /**
@@ -20,15 +18,16 @@ class AuthMiddleware
      */
     public static function isAuthorized(): void
     {
-        $response = new Response();
-
         if (!isset($_COOKIE['auth_token'])) {
-            $response->setError("User not authenticated", 401);
-            die(json_encode($response->getResponse()));
+            throw new Exception("User not authenticated", 401);
         }
 
         $jwt = $_COOKIE['auth_token'];
-        $secret_key = $_ENV['JWT_SECRET'];
+        $secret_key = $_ENV['JWT_SECRET'] ?? '';
+
+        if (empty($secret_key)) {
+            throw new Exception("JWT secret key is not configured", 500);
+        }
 
         try {
             $decoded = JWT::decode($jwt, new Key($secret_key, 'HS256'));
@@ -55,7 +54,7 @@ class AuthMiddleware
             'expires' => time() + (60 * 60 * 24 * $expiration_days),
             'path' => '/',
             'httponly' => true,
-            'secure' => false,
+            'secure' => self::isSecureCookie(),
             'samesite' => 'strict'
         ]);
     }
@@ -70,8 +69,13 @@ class AuthMiddleware
             'expires' => time() - 3600,
             'path' => '/',
             'httponly' => true,
-            'secure' => false,
+            'secure' => self::isSecureCookie(),
             'samesite' => 'strict'
         ]);
+    }
+
+    private static function isSecureCookie(): bool
+    {
+        return strtolower($_ENV['COOKIE_SECURE'] ?? 'true') === 'true';
     }
 }

@@ -8,3 +8,4 @@ scripts/*
 .env
 composer.phar
 composer.lock
+phpstan.phar
