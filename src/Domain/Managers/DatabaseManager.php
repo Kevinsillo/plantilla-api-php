@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Backend\Domain;
+namespace Backend\Domain\Managers;
 
-interface ManagerDatabase
+interface DatabaseManager
 {
     /**
      * Creates the `migrations` tracking table if it doesn't exist.
@@ -31,6 +31,11 @@ interface ManagerDatabase
      * @param string $filePath Path to the migration file.
      */
     public function runMigration(string $filePath): void;
+
+    /**
+     * Returns the timestamp of the last executed migration, or null if none.
+     */
+    public function getLastExecutedAt(): ?string;
 
     /**
      * Resets the database (drops all tables or recreates the database).

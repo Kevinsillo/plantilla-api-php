@@ -10,15 +10,14 @@ use RuntimeException;
 
 class Envs
 {
-    /**
-     * @param string $root_dir Root directory where the .env file is located.
-     * @throws RuntimeException If the .env file cannot be loaded.
-     */
-    /** @var string[] Boolean environment variable names. */
-    private const BOOLEAN_VARS = [
-        'DEV_MODE',
-        'COOKIE_SECURE',
+    /** @var array<array{var: string, type: string}> */
+    private const REQUIRED_VARIABLES = [
+        ["var" => 'DEV_MODE', "type" => "boolean"],
+        ["var" => 'CORS_ORIGIN', "type" => "array"],
+        ["var" => 'IS_COOKIE_SECURE', "type" => "boolean"],
+        ["var" => 'DB_DRIVER', "type" => 'string']
     ];
+    private Dotenv $dotenv;
 
     /**
      * @param string $root_dir Root directory where the .env file is located.
@@ -27,41 +26,85 @@ class Envs
     public function __construct(string $root_dir)
     {
         try {
-            $dotenv = Dotenv::createImmutable($root_dir);
-            $dotenv->load();
-            $dotenv->ifPresent(self::BOOLEAN_VARS)->isBoolean();
+            $this->dotenv = Dotenv::createImmutable($root_dir);
+            $this->dotenv->load();
+            $this->checkRequiredEnvVars();
+            $this->filterAppropriateTypes();
         } catch (Exception $e) {
             throw new RuntimeException('Environment error: ' . $e->getMessage());
         }
     }
 
     /**
-     * Check that all required environment variables are defined and not empty.
-     *
-     * @param string[] $required List of required environment variable names.
+     * Validate and convert environment variables to their
+     * appropriate types.
      * @return void
-     * @throws RuntimeException If any variable is missing or empty.
      */
-    public static function checkRequiredEnvVars(): void
+    private function checkRequiredEnvVars(): void
     {
-        $required = [
-            'DEV_MODE',
-            'COOKIE_SECURE',
-            'CORS_ORIGIN',
-        ];
-
-        $missing = [];
-
-        foreach ($required as $var) {
+        $missings = [];
+        foreach (self::REQUIRED_VARIABLES as ['var' => $var, 'type' => $type]) {
             if (!isset($_ENV[$var]) || empty($_ENV[$var])) {
-                $missing[] = $var;
+                $missings[] = $var;
             }
         }
 
-        if (!empty($missing)) {
-            throw new RuntimeException(
-                'Missing required environment variables: ' . implode(', ', $missing)
-            );
+        if (!empty($missings)) {
+            throw new RuntimeException('Missing or empty required environment variables: ' . implode(', ', $missings));
         }
+    }
+
+    /**
+     * Convert environment variables to their appropriate types.
+     * @return void
+     * @throws RuntimeException If any variable has an invalid value.
+     */
+    private function filterAppropriateTypes(): void
+    {
+        foreach (self::REQUIRED_VARIABLES as ['var' => $var, 'type' => $type]) {
+            switch ($type) {
+                case 'boolean':
+                    $_ENV[$var] = $this->validateBoolean($_ENV[$var], $var);
+                    break;
+                case 'array':
+                    $_ENV[$var] = $this->validateArray($_ENV[$var], $var);
+                    break;
+                case 'string':
+                    $_ENV[$var] = trim($_ENV[$var]);
+                    break;
+                default:
+                    throw new RuntimeException("Unsupported type '$type' for variable '$var'.");
+            }
+        }
+    }
+
+    /**
+     * @throws RuntimeException If the value is not a valid boolean string.
+     */
+    private function validateBoolean(string $value, string $var): bool
+    {
+        $allowed = ['true', 'false', '1', '0'];
+        if (!in_array(strtolower($value), $allowed, true)) {
+            throw new RuntimeException("Variable '$var' must be a boolean (true/false, 1/0). Got: '$value'");
+        }
+        return filter_var($value, FILTER_VALIDATE_BOOLEAN);
+    }
+
+    /**
+     * @return string[]
+     * @throws RuntimeException If the value is not a valid JSON array of strings.
+     */
+    private function validateArray(string $value, string $var): array
+    {
+        $items = json_decode($value, true);
+        if (!is_array($items) || array_values($items) !== $items) {
+            throw new RuntimeException("Variable '$var' must be a JSON array (e.g. [\"a\", \"b\"]). Got: '$value'");
+        }
+        foreach ($items as $item) {
+            if (!is_string($item) || trim($item) === '') {
+                throw new RuntimeException("Variable '$var' must contain only non-empty strings. Got: '$value'");
+            }
+        }
+        return $items;
     }
 }

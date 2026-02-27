@@ -14,9 +14,6 @@ try {
     # Load environment variables
     $envs = new Envs(ROOT_DIR);
 
-    # Check required environment variables
-    $envs::checkRequiredEnvVars();
-
     # If DEV_MODE is true, allow showing errors for debugging
     if (filter_var($_ENV['DEV_MODE'], FILTER_VALIDATE_BOOLEAN)) {
         ini_set('display_errors', '1');

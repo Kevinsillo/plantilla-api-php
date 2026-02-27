@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Backend\Infrastructure;
+namespace Backend\Infrastructure\Managers;
 
 use SQLite3;
 use Exception;
-use Backend\Domain\ManagerDatabase;
+use Backend\Domain\Managers\DatabaseManager;
 
-class ManagerSQLite3 implements ManagerDatabase
+class Sqlite3Manager implements DatabaseManager
 {
     private string $database_path;
     public SQLite3 $connection;
@@ -53,7 +53,7 @@ class ManagerSQLite3 implements ManagerDatabase
      */
     public function setup(): void
     {
-        $this->connection->exec("CREATE TABLE IF NOT EXISTS migrations (name TEXT UNIQUE)");
+        $this->connection->exec("CREATE TABLE IF NOT EXISTS migrations (name TEXT UNIQUE, executed_at TEXT NOT NULL DEFAULT (datetime('now')))");
     }
 
     /**
@@ -80,6 +80,12 @@ class ManagerSQLite3 implements ManagerDatabase
         $stmt = $this->connection->prepare("INSERT INTO migrations (name) VALUES (:name)");
         $stmt->bindValue(':name', $name, SQLITE3_TEXT);
         $stmt->execute();
+    }
+
+    public function getLastExecutedAt(): ?string
+    {
+        $result = $this->connection->querySingle("SELECT MAX(executed_at) FROM migrations");
+        return $result ?: null;
     }
 
     /**

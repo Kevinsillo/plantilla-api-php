@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Backend\Infrastructure;
+namespace Backend\Infrastructure\Managers;
 
 use PDO;
 use PDOException;
-use Backend\Domain\ManagerDatabase;
+use Backend\Domain\Managers\DatabaseManager;
 
-class ManagerMysql implements ManagerDatabase
+class MysqlManager implements DatabaseManager
 {
     private string $db_host;
     private string $db_name;
@@ -46,12 +46,28 @@ class ManagerMysql implements ManagerDatabase
     {
         try {
             $options = [
+                # This option enables exceptions for database errors, which allows
+                # for better error handling.
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                # This option sets the default fetch mode to associative arrays
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                # This option disables emulated prepared statements, which can 
+                # lead to better performance and security.
                 PDO::ATTR_EMULATE_PREPARES => false,
+                # This option ensures that numeric values are returned as 
+                # their native types (e.g., integers, floats) instead of strings.
                 PDO::ATTR_STRINGIFY_FETCHES => false,
+                # Multi-statement support is required for running 
+                # migration files that contain multiple SQL statements.
+                PDO::MYSQL_ATTR_MULTI_STATEMENTS => true,
             ];
-            return new PDO("mysql:host={$this->db_host}; port={$this->db_port};dbname={$this->db_name}", $this->db_user, $this->db_pass, $options);
+            $pdo = new PDO(
+                "mysql:host={$this->db_host}; port={$this->db_port};dbname={$this->db_name}",
+                $this->db_user,
+                $this->db_pass,
+                $options
+            );
+            return $pdo;
         } catch (PDOException $e) {
             throw new PDOException("Connection with database failed: " . $e->getMessage(), 500);
         }
@@ -63,7 +79,7 @@ class ManagerMysql implements ManagerDatabase
      */
     public function setup(): void
     {
-        $this->connection->exec("CREATE TABLE IF NOT EXISTS migrations (name VARCHAR(255) UNIQUE)");
+        $this->connection->exec("CREATE TABLE IF NOT EXISTS migrations (name VARCHAR(255) UNIQUE, executed_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP)");
     }
 
     /**
@@ -86,6 +102,12 @@ class ManagerMysql implements ManagerDatabase
     {
         $stmt = $this->connection->prepare("INSERT INTO migrations (name) VALUES (:name)");
         $stmt->execute(['name' => $name]);
+    }
+
+    public function getLastExecutedAt(): ?string
+    {
+        $result = $this->connection->query("SELECT MAX(executed_at) FROM migrations")->fetchColumn();
+        return $result ?: null;
     }
 
     /**

@@ -2,7 +2,7 @@
 vendor/
 .vscode/
 files/*
-scripts/*
+scripts/secure/
 
 # FILES
 .env

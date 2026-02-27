@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Backend\Infrastructure;
+namespace Backend\Infrastructure\Managers;
 
 use PDO;
 use Exception;
 use PDOException;
-use Backend\Domain\ManagerDatabase;
+use Backend\Domain\Managers\DatabaseManager;
 
-class ManagerSQLite implements ManagerDatabase
+class SqliteManager implements DatabaseManager
 {
     private string $database_path;
     public PDO $connection;
@@ -50,7 +50,7 @@ class ManagerSQLite implements ManagerDatabase
      */
     public function setup(): void
     {
-        $this->connection->exec("CREATE TABLE IF NOT EXISTS migrations (name TEXT UNIQUE)");
+        $this->connection->exec("CREATE TABLE IF NOT EXISTS migrations (name TEXT UNIQUE, executed_at TEXT NOT NULL DEFAULT (datetime('now')))");
     }
 
     /**
@@ -73,6 +73,12 @@ class ManagerSQLite implements ManagerDatabase
     {
         $stmt = $this->connection->prepare("INSERT INTO migrations (name) VALUES (:name)");
         $stmt->execute(['name' => $name]);
+    }
+
+    public function getLastExecutedAt(): ?string
+    {
+        $result = $this->connection->query("SELECT MAX(executed_at) FROM migrations")->fetchColumn();
+        return $result ?: null;
     }
 
     /**

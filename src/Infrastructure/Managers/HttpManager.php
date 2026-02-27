@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Backend\Infrastructure;
+namespace Backend\Infrastructure\Managers;
 
 use Exception;
 
-class ManagerHttp
+class HttpManager
 {
     /**
      * Get method for HTTP requests

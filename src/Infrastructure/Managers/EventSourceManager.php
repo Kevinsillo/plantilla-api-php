@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Backend\Infrastructure;
+namespace Backend\Infrastructure\Managers;
 
-class ManagerEventSource
+class EventSourceManager
 {
     private array $events = [];
 

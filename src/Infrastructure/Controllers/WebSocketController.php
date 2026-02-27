@@ -2,18 +2,19 @@
 
 declare(strict_types=1);
 
-namespace Backend\Infrastructure;
+namespace Backend\Infrastructure\Controllers;
 
+use Backend\Router;
 use Ratchet\MessageComponentInterface;
 use Ratchet\ConnectionInterface;
 use SplObjectStorage;
 
-class ControllerWebSocket implements MessageComponentInterface
+class WebSocketController implements MessageComponentInterface
 {
     protected $clients;
     protected $router;
 
-    public function __construct(array $router)
+    public function __construct(Router $router)
     {
         $this->clients = new SplObjectStorage;
         $this->router = $router;
@@ -21,7 +22,8 @@ class ControllerWebSocket implements MessageComponentInterface
 
     public function onOpen(ConnectionInterface $conn)
     {
-        $this->clients->attach($conn);
+        $this->clients->offsetSet($conn);
+        /** @var \Ratchet\ConnectionInterface&object{resourceId: int} $conn */
         echo "New connection! ({$conn->resourceId})\n";
     }
 
@@ -60,7 +62,8 @@ class ControllerWebSocket implements MessageComponentInterface
 
     public function onClose(ConnectionInterface $conn)
     {
-        $this->clients->detach($conn);
+        $this->clients->offsetUnset($conn);
+        /** @var \Ratchet\ConnectionInterface&object{resourceId: int} $conn */
         echo "Connection {$conn->resourceId} has disconnected\n";
     }
 

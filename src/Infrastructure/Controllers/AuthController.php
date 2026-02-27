@@ -2,14 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Backend\Infrastructure;
+namespace Backend\Infrastructure\Controllers;
 
 use Backend\AuthMiddleware;
 use Backend\Domain\Response;
 use Backend\Domain\User;
 use Firebase\JWT\JWT;
+use Exception;
 
-class ControllerBase
+class AuthController
 {
     private string $jwt_secret;
     private int $jwt_exp_days;
