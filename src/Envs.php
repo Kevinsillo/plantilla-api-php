@@ -13,7 +13,7 @@ class Envs
     /** @var array<array{var: string, type: string}> */
     private const REQUIRED_VARIABLES = [
         ["var" => 'DEV_MODE', "type" => "boolean"],
-        ["var" => 'CORS_ORIGIN', "type" => "array"],
+        ["var" => 'CORS_ORIGIN', "type" => "string"],
         ["var" => 'IS_COOKIE_SECURE', "type" => "boolean"],
         ["var" => 'DB_DRIVER', "type" => 'string']
     ];

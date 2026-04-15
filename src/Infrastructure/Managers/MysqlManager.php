@@ -62,7 +62,7 @@ class MysqlManager implements DatabaseManager
                 PDO::MYSQL_ATTR_MULTI_STATEMENTS => true,
             ];
             $pdo = new PDO(
-                "mysql:host={$this->db_host}; port={$this->db_port};dbname={$this->db_name}",
+                "mysql:host={$this->db_host};port={$this->db_port};dbname={$this->db_name};charset=utf8mb4",
                 $this->db_user,
                 $this->db_pass,
                 $options

@@ -12,10 +12,10 @@ require(ROOT_DIR . '/vendor/autoload.php');
 
 try {
     # Load environment variables
-    $envs = new Envs(ROOT_DIR);
+    new Envs(ROOT_DIR);
 
     # If DEV_MODE is true, allow showing errors for debugging
-    if (filter_var($_ENV['DEV_MODE'], FILTER_VALIDATE_BOOLEAN)) {
+    if ($_ENV['DEV_MODE']) {
         ini_set('display_errors', '1');
         ini_set('display_startup_errors', '1');
         error_reporting(E_ALL);
@@ -62,7 +62,7 @@ try {
     echo json_encode($result);
     exit;
 } catch (Exception $e) {
-    $response->setError($e->getMessage(), $e->getCode());
+    $response->setError($e->getMessage(), (int) $e->getCode() ?: 500);
     echo json_encode($response->getResponse());
     exit;
 }

@@ -9,6 +9,7 @@ use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use Firebase\JWT\ExpiredException;
 use Firebase\JWT\SignatureInvalidException;
+
 class AuthMiddleware
 {
     /**
@@ -76,6 +77,6 @@ class AuthMiddleware
 
     private static function isSecureCookie(): bool
     {
-        return strtolower($_ENV['COOKIE_SECURE'] ?? 'true') === 'true';
+        return $_ENV['IS_COOKIE_SECURE'] ?? true;
     }
 }
